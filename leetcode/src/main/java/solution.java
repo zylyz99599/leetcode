@@ -2356,14 +2356,14 @@ class Solution {
         for (int i = 1; i < n; i++) {
             int num = nums[i];
             for (int j = 1; j <= target; j++) {
-                if (j>=num){
-                    dp[i][j] = dp[i-1][j] | dp[i-1][j-num];
-                }else{
-                    dp[i][j] = dp[i-1][j];
+                if (j >= num) {
+                    dp[i][j] = dp[i - 1][j] | dp[i - 1][j - num];
+                } else {
+                    dp[i][j] = dp[i - 1][j];
                 }
             }
         }
-        return dp[n-1][target];
+        return dp[n - 1][target];
     }
 
     // endregion
@@ -2382,6 +2382,7 @@ class Solution {
         }
         return canPartition(nums, sum / 2, 0, 0, new Boolean[nums.length][sum / 2]);
     }
+
     private boolean canPartition(int[] nums, int target, int pos, int sum, Boolean[][] memo) {
         if (sum == target) {
             return true;
@@ -2403,28 +2404,150 @@ class Solution {
         Deque<Integer> stack = new LinkedList<Integer>();
         stack.push(-1);
         for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '('){
+            if (s.charAt(i) == '(') {
                 stack.push(i);
-            }else{
+            } else {
                 stack.pop();
-                if (stack.isEmpty()){
+                if (stack.isEmpty()) {
                     stack.push(i);
-                }else
+                } else
                     max = Math.max(max, i - stack.peek());
             }
         }
         return max;
     }
     // endregion
+
+    // region leetcode62 不同路径
+    public int uniquePaths(int m, int n) {
+        int[][] dp = new int[m + 1][n + 1];
+        for (int i = 0; i < n; i++)
+            dp[0][i] = 0;
+        for (int i = 0; i < m; i++)
+            dp[m][0] = 0;
+        dp[1][1] = 1;
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (i != 1 || j != 1)
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+            }
+        }
+        return dp[m][n];
+    }
+    // endregion
+
+    // region leetcode 最小路径
+    public int minPathSum(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        int[][] dp = new int[m + 1][n + 1];
+        for (int i = 0; i <= n; i++)
+            dp[0][i] = Integer.MAX_VALUE;
+        for (int i = 0; i <= m; i++)
+            dp[i][0] = Integer.MAX_VALUE;
+        dp[1][1] = grid[0][0];
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (i != 1 || j != 1) {
+                    dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i - 1][j - 1];
+                }
+            }
+        }
+        for (int[] ints : dp) {
+            for (int anInt : ints) {
+                System.out.print(anInt + " ");
+            }
+            System.out.println();
+        }
+        return dp[m][n];
+    }
+    // endregion
+
+    // region leetcode5 最长回文子串
+
+    // 动态规划较慢
+    /*public String longestPalindrome(String s) {
+        int len = s.length();
+        if (len < 2) return s;
+        int maxLen = 1;
+        int begin = 0;
+        boolean[][] dp = new boolean[len][len];
+        for (int i = 0; i < len; i++) {
+            dp[i][i] = true;
+        }
+        for (int l = 2; l <= len; l++) {
+            for (int i = 0; i < len; i++) {
+                int j = l + i - 1;
+                if (j >= len)
+                    break;
+                if (s.charAt(i) != s.charAt(j)) dp[i][j] = false;
+                else {
+                    if (j - i < 3) dp[i][j] = true;
+                    else dp[i][j] = dp[i + 1][j - 1];
+                }
+
+                if (dp[i][j] && l > maxLen) {
+                    maxLen = l;
+                    begin = i;
+                }
+            }
+        }
+        return s.substring(begin,begin+maxLen);
+    }*/
+    // 中心扩散法
+    public String longestPalindrome(String s) {
+
+        int len = s.length();
+        int begin = 0;
+        int maxLen = 1;
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j <= 1; j++) {
+                int l = i, r = i + j;
+                while (l >= 0 && r < len && s.charAt(l) == s.charAt(r)) {
+                    l++;
+                    r--;
+                }
+                // 回溯一次
+                l--;
+                r++;
+                int temp = r - l + 1;
+                if (temp > maxLen) {
+                    maxLen = temp;
+                    begin = l;
+                }
+            }
+        }
+        return s.substring(begin, begin + maxLen);
+
+    }
+    // endregion
+
+    // region leetcode 1143 最长公共子序列
+    public int longestCommonSubsequence(String text1, String text2) {
+        int m = text1.length(), n = text2.length();
+        int[][] dp = new int[m + 1][n + 1];
+        for (int i = 1; i <= m; i++) {
+            char c1 = text1.charAt(i - 1);
+            for (int j = 1; j <= n; j++) {
+                char c2 = text2.charAt(j - 1);
+                if (c1 == c2) dp[i][j] = dp[i-1][j-1]+ 1;
+                else dp[i][j] = Math.max(dp[i-1][j],dp[i][j-1]);
+            }
+        }
+        return dp[m][n];
+    }
+
+    // endregion
     public static void main(String[] args) {
         Solution solution = new Solution();
-        int[] n = new int[]{2, 2, 1, 1};
-        System.out.println(solution.canPartition(n));
-
+        int[][] grid = new int[][]{{1, 2}, {5, 6}, {1, 1}};
+        System.out.println(solution.minPathSum(grid));
 
     }
 
-
+    // 1 2
+    // 5 6
+    // 1 1
 }
 
 class ListNode {
