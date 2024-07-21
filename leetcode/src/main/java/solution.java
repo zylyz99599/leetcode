@@ -2418,8 +2418,7 @@ class Solution {
     // endregion
     public static void main(String[] args) {
         Solution solution = new Solution();
-        int[] n = new int[]{2, 2, 1, 1};
-        System.out.println(solution.canPartition(n));
+        // kakaka
 
 
     }
